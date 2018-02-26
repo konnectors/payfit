@@ -10,7 +10,7 @@
   "author": "",
   "license": "AGPL-3.0",
   "dependencies": {
-    "cozy-konnector-libs": "^3.0.0"
+    "cozy-konnector-libs": "3.1.5"
   },
   "scripts": {
     "start": "node src/index.js",
@@ -21,8 +21,8 @@
     "deploy": "git-directory-deploy --directory build/ --branch build --repo=https://github.com/konnectors/cozy-konnector-payfit.git"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^4.0.1",
-    "git-directory-deploy": "^1.5.1",
-    "webpack": "^3"
+    "copy-webpack-plugin": "4.3.1",
+    "git-directory-deploy": "1.5.1",
+    "webpack": "3.10.0"
   }
 }
