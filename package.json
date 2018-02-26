@@ -48,7 +48,7 @@
       "git-directory-deploy --directory build/ --branch latest --repo=https://github.com/konnectors/cozy-konnector-payfit.git"
   },
   "dependencies": {
-    "cozy-konnector-libs": "3.4.0"
+    "cozy-konnector-libs": "3.5.1"
   },
   "devDependencies": {
     "copy-webpack-plugin": "4.4.1",
