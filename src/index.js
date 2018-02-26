@@ -1,7 +1,8 @@
 const {
   BaseKonnector,
   saveFiles,
-  requestFactory
+  requestFactory,
+  errors
 } = require("cozy-konnector-libs");
 
 const request = requestFactory({
@@ -33,24 +34,30 @@ function logIn(fields) {
       username: fields.username,
       language: "fr"
     }
-  }).then(body => {
-    let id = body.accounts[0].id;
-    let tokens = id.split("/");
-    let companyId = tokens[0];
-    let employeeId = tokens[1];
-    idToken = body.idToken;
+  })
+    .then(body => {
+      let id = body.accounts[0].id;
+      let tokens = id.split("/");
+      let companyId = tokens[0];
+      let employeeId = tokens[1];
+      idToken = body.idToken;
 
-    return request({
-      uri:
-        "https://auth.payfit.com/updateCurrentCompany?application=hr-apps/user&companyId=" +
-        companyId +
-        "&customApp=false&employeeId=" +
-        employeeId +
-        "&holdingId&idToken=" +
-        idToken +
-        "&origin=https://app.payfit.com"
+      const uri =
+        "https://auth.payfit.com/updateCurrentCompany?application=hr-apps/user&companyId=";
+
+      return request({
+        uri: `${uri}${companyId}&customApp=false&employeeId=${employeeId}&holdingId&idToken=${idToken}&origin=https://app.payfit.com`
+      });
+    })
+    .catch(err => {
+      if (
+        err.statusCode === 401 &&
+        err.error &&
+        err.error.error === "Wrong email or password"
+      ) {
+        throw new Error(errors.LOGIN_FAILED);
+      }
     });
-  });
 }
 
 function fetchPayrolls() {
