@@ -1,0 +1,28 @@
+{
+  "name": "cozy-konnector-payfit",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/konnectors/cozy-konnector-payfit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "cozy-konnector-libs": "^3.0.0"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "cozy-konnector-dev src/index.js",
+    "standalone": "cozy-konnector-standalone src/index.js",
+    "build": "webpack",
+    "deploy:travis": "git-directory-deploy --username <YOUR_GH_USERNAME> --email <YOUR_EMAIL> --directory build/ --repo=https://$GITHUB_TOKEN@github.com/<USERNAME_GH>/<SLUG_GH>.git",
+    "deploy": "git-directory-deploy --directory build/ --branch build --repo=https://github.com/konnectors/cozy-konnector-payfit.git"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.0.1",
+    "git-directory-deploy": "^1.5.1",
+    "webpack": "^3"
+  }
+}
