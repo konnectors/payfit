@@ -1,80 +1,85 @@
-const {BaseKonnector, saveFiles, requestFactory} = require('cozy-konnector-libs')
+const {
+  BaseKonnector,
+  saveFiles,
+  requestFactory
+} = require("cozy-konnector-libs");
 
 const request = requestFactory({
   // debug: true,
   json: true,
   jar: true
-})
+});
 
-const formatDate = require('date-fns/format')
+const formatDate = require("date-fns/format");
 
-module.exports = new BaseKonnector(start)
+module.exports = new BaseKonnector(start);
 
-let idToken = ''
+let idToken = "";
 
-function start (fields) {
+function start(fields) {
   return logIn(fields)
     .then(fetchPayrolls)
     .then(convertPayrollsToCozy)
-    .then(documents => saveFiles(documents, fields))
+    .then(documents => saveFiles(documents, fields));
 }
 
-function logIn (fields) {
+function logIn(fields) {
   return request({
-    uri: 'https://auth.payfit.com/signin',
-    method: 'POST',
+    uri: "https://auth.payfit.com/signin",
+    method: "POST",
     body: {
       email: fields.username,
       password: fields.password,
       username: fields.username,
-      language: 'fr'
+      language: "fr"
     }
   }).then(body => {
-    let id = body.accounts[0].id
-    let tokens = id.split('/')
-    let companyId = tokens[0]
-    let employeeId = tokens[1]
-    idToken = body.idToken
+    let id = body.accounts[0].id;
+    let tokens = id.split("/");
+    let companyId = tokens[0];
+    let employeeId = tokens[1];
+    idToken = body.idToken;
 
     return request({
-      uri: 'https://auth.payfit.com/updateCurrentCompany?application=hr-apps/user&companyId=' +
+      uri:
+        "https://auth.payfit.com/updateCurrentCompany?application=hr-apps/user&companyId=" +
         companyId +
-        '&customApp=false&employeeId=' +
+        "&customApp=false&employeeId=" +
         employeeId +
-        '&holdingId&idToken=' +
+        "&holdingId&idToken=" +
         idToken +
-        '&origin=https://app.payfit.com'
-    })
-  })
+        "&origin=https://app.payfit.com"
+    });
+  });
 }
 
-function fetchPayrolls () {
+function fetchPayrolls() {
   return request({
-    method: 'POST',
-    uri: 'https://api.payfit.com/api/employees/payrolls',
+    method: "POST",
+    uri: "https://api.payfit.com/api/employees/payrolls",
     headers: {
-      'Authorization': idToken
+      Authorization: idToken
     }
-  })
+  });
 }
 
-function convertPayrollsToCozy (payrolls) {
-  const baseUrl = 'https://api.payfit.com/api'
+function convertPayrollsToCozy(payrolls) {
+  const baseUrl = "https://api.payfit.com/api";
 
-  return payrolls.map(function (payroll) {
-    const url = baseUrl + payroll.url + '?' + idToken
-    const date = getDateFromAbsoluteMonth(payroll.absoluteMonth)
-    const filename = `${formatDate(date, 'YYYY_MM')}.pdf`
+  return payrolls.map(function(payroll) {
+    const url = baseUrl + payroll.url + "?" + idToken;
+    const date = getDateFromAbsoluteMonth(payroll.absoluteMonth);
+    const filename = `${formatDate(date, "YYYY_MM")}.pdf`;
     return {
       fileurl: url,
       filename,
       requestOptions: {
         headers: {
-          'Authorization': idToken
+          Authorization: idToken
         }
       }
-    }
-  })
+    };
+  });
 }
 
 // module.exports = new BaseKonnector(requiredFields => {
@@ -89,6 +94,6 @@ function convertPayrollsToCozy (payrolls) {
 // })
 
 // extracted from Payfit front code
-function getDateFromAbsoluteMonth (absoluteMonth) {
-  return new Date(2015, absoluteMonth - 1)
+function getDateFromAbsoluteMonth(absoluteMonth) {
+  return new Date(2015, absoluteMonth - 1);
 }
