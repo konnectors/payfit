@@ -1,15 +1,12 @@
-[Cozy][cozy] Payfit
-=======================================
+# [Cozy][cozy] Payfit
 
-What's Cozy?
-------------
+## What's Cozy?
 
 ![Cozy Logo](https://cdn.rawgit.com/cozy/cozy-guidelines/master/templates/cozy_logo_small.svg)
 
 [Cozy] is a platform that brings all your web services in the same private space. With it, your webapps and your devices can share data easily, providing you with a new experience. You can install Cozy on your own hardware where no one's tracking you.
 
-What's this new konnector?
---------------------------
+## What's this new konnector?
 
 This connector fetches the PDF pay statements from the Payfit web site.
 
@@ -76,9 +73,10 @@ The cozy-stack runs the connector in a nsjail container to be sure it does not a
 
 The connector is run by calling yarn start with the following envrionment variables :
 
- - COZY_CREDENTIALS needs to be the result of `cozy-stack instances token-cli <instance name> <scope>`
- - COZY_URL is the full http or https url to your cozy
- - COZY_FIELDS is something like :
+* COZY_CREDENTIALS needs to be the result of `cozy-stack instances token-cli <instance name> <scope>`
+* COZY_URL is the full http or https url to your cozy
+* COZY_FIELDS is something like :
+
 ```javascript
 {
   "data":{
@@ -125,15 +123,15 @@ You can follow these steps to enable building using Travis:
 * On your [travis-ci.org][travis] account, find your project name (should be the same than your Github repository) and enable Travis by using the related checkbox.
 * Once enabled, go to this project on Travis by clicking on it and go to the "Settings" menu by using the "More options" menu at the top right.
 * Enable these three options:
-    * "Build only if .travis.yml is present"
-    * "Build branch updates" (run Travis after each branch update)
-    * "Build pull request updates" (run Travis after each Pull Request update)
+  * "Build only if .travis.yml is present"
+  * "Build branch updates" (run Travis after each branch update)
+  * "Build pull request updates" (run Travis after each Pull Request update)
 * Then, you have to generate a Github token in [your Github account settings](https://github.com/settings/tokens). Here is the [Github blog post about API token](https://github.com/blog/1509-personal-api-tokens). Don't forget to authorize the access to the repo scope like following: ![repo scope](https://cloud.githubusercontent.com/assets/10224453/26671128/aa735ec2-46b4-11e7-9cd0-25310100e05e.png)
-* Then, add an environment variable (still in your Travis project settings) named `GITHUB_TOKEN` and use your previous generated Github token as value (We highly recommand you to __keep the checkbox "Display value in build log" to OFF value__ in order to keep your token value hidden in the Travis logs.)
+* Then, add an environment variable (still in your Travis project settings) named `GITHUB_TOKEN` and use your previous generated Github token as value (We highly recommand you to **keep the checkbox "Display value in build log" to OFF value** in order to keep your token value hidden in the Travis logs.)
 
 Now Travis is ready to build your project, it should build it each time your push a commit in your repository or create a pull request.
 
-> __Note:__ Travis will push your build to your `build` branch ONLY for commits made on your master branch (included PR merge commits). You can see the related Travis statement [here](https://github.com/cozy/cozy-konnector-template/blob/master/.travis.yml#L27).
+> **Note:** Travis will push your build to your `build` branch ONLY for commits made on your master branch (included PR merge commits). You can see the related Travis statement [here](https://github.com/cozy/cozy-konnector-template/blob/master/.travis.yml#L27).
 
 ### Add your new connector to [Cozy Collect](https://github.com/cozy/cozy-collect)
 
@@ -152,21 +150,19 @@ yarn lint
 
 ### Maintainer
 
-The lead maintainers for this konnector is <YOUR NAME>
-
+This connector is the result of the work of @gara64, @clochix, and @doubleface
+The lead maintainers for this konnector is @doubleface
 
 ### Get in touch
 
 You can reach the Cozy Community by:
 
-- Chatting with us on IRC [#cozycloud on Freenode][freenode]
-- Posting on our [Forum]
-- Posting issues on the [Github repos][github]
-- Say Hi! on [Twitter]
+* Chatting with us on IRC [#cozycloud on Freenode][freenode]
+* Posting on our [Forum]
+* Posting issues on the [Github repos][github]
+* Say Hi! on [Twitter]
 
-
-License
--------
+## License
 
 <YOUR KONNECTOR NAME> is developed by <your name> and distributed under the [AGPL v3 license][agpl-3.0].
 
