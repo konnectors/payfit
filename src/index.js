@@ -29,9 +29,9 @@ function logIn(fields) {
     uri: "https://auth.payfit.com/signin",
     method: "POST",
     body: {
-      email: fields.username,
+      email: fields.login,
       password: fields.password,
-      username: fields.username,
+      username: fields.login,
       language: "fr"
     }
   })
