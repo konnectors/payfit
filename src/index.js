@@ -1,5 +1,6 @@
 const {
   BaseKonnector,
+  log,
   saveFiles,
   requestFactory,
   errors
@@ -25,6 +26,7 @@ function start(fields) {
 }
 
 function logIn(fields) {
+  log("info", "Login...");
   return request({
     uri: "https://auth.payfit.com/signin",
     method: "POST",
@@ -36,7 +38,8 @@ function logIn(fields) {
     }
   })
     .then(body => {
-      let id = body.accounts[0].id;
+      const employee = body.accounts.find(doc => doc.type === "e");
+      let id = employee.id;
       let tokens = id.split("/");
       let companyId = tokens[0];
       let employeeId = tokens[1];
@@ -61,6 +64,7 @@ function logIn(fields) {
 }
 
 function fetchPayrolls() {
+  log("info", "Fetching payrolls...");
   return request({
     method: "POST",
     uri: "https://api.payfit.com/api/employees/payrolls",
@@ -71,6 +75,7 @@ function fetchPayrolls() {
 }
 
 function convertPayrollsToCozy(payrolls) {
+  log("info", "Converting payrolls to cozy...");
   const baseUrl = "https://api.payfit.com/api";
 
   return payrolls.map(function(payroll) {
@@ -88,17 +93,6 @@ function convertPayrollsToCozy(payrolls) {
     };
   });
 }
-
-// module.exports = new BaseKonnector(requiredFields => {
-//     // Retrieve payrolls
-//   }).then(entries => saveFiles(entries, requiredFields.folderPath))
-//     .catch(err => {
-//       // Connector is not in error if there is not entry in the end
-//       // It may be simply an empty account
-//       if (err.message === 'NO_ENTRY') return []
-//       throw err
-//     })
-// })
 
 // extracted from Payfit front code
 function getDateFromAbsoluteMonth(absoluteMonth) {
