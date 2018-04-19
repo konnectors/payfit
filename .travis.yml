@@ -1,11 +1,28 @@
 language: node_js
 node_js:
   - '8'
+env:
+  global:
+    # CPatchane GITHUB_TOKEN
+    - secure: fGTOXgudZjmUP5Tvxc/rG+RDHj88iTvbWiscMie9678Fi6/GV6W1qVJ2gV1SUwhSNX7+PKsLs+688mxdsu6WdBHPsYCefIfhJcIW8VyE/ErD3j9gQOoEOVqx8opd7OokWG3pucZ6z2Z8K5XQX+Tu0aaEpR+/jPbWPKaQbthYaZDyyymdK0vqlISuhZZ+QbqZglGp9cn9kR47sTl38FYdb4kp1xWgvovcs5cgMBdQN4FHRLXSulQ+YbSkMYGowLW+Cxg5e2HMTpTH5mMR35IsiQQ+Kdo/rHGb5ItMno0BDb/LARnTCfG3i3tHLI77sOEfKEDeY+OIUsQUecG7K9d8UvYd6DT5JWE65aaJJbH47p6xlx7bZ0+lKbGr8OAgJ+K7m/KxmVw+P4KRYdA+PDuPa6/9TbZk9wDmjaRcgQjT2sgakjWYIHH8yIXXFyNfMUrKH1+aNHUqrLS4QxwF9g+iOdedWEF6LoqJ9QxAYNgKrpM9ehD8IoPSG3uxgOW+f7viDKyHfwEFmPrl1xEl+OAhELxC0DHcNN/741boq8l3j/nDbH/xtwvwOjeZz1Cb+yoITnqsdKDyErKCNzXo6yeODJzr8rlZTtpPLcd/koEtaq241L+FM8itd/0k0RiHaPiTZ0iFQ8wAqAEi3W3bMp2ruyF/tr1poGWe20CtSQ7HpMU=
+    # REGISTRY_TOKEN
+    - secure: MWOemtUuXbvuDhZyb9uZed0N+mHp/Ta8HFZIQN1HxYL2kueWkDyt0H0QIOcsluIcXnX1CD7agtD6o2XCD7R0/mLbHdm2Kp6pUQKSa0FgK0FH4cVdob6k/IH5p1Phvg/GgjxdV+yW0QloQDrIOqVUEqQ1YthaKuXYpQOD2RbxxcDtIXAv2Xoihq9pGPvwRrVJfe5XQDflHAFCMPX2k4j2FhSHEV6c8rVB6OYMNtA9EHKJWxMxYutnbs8XT5pgzevvcENyftyEClYRL6dpgAtZHXP6/jNKgRCqrtCwQrLrlz+cypo4ai8KYxquqCkmq4ZrijBSiKaNYZF+pfpbNbTwM1XDC9zX2c87WZ6UX6BBmAU8hloLBEmFqqsksSdFI2o8X5R2vyjY1IzL5gm2cxEtgjOT7rXvgjB9JiDd34HCc+cHjv415aDjhDMCvKssdGgxeeuTMP2Z3kqTvxondDaUuq9ALzLml9X0ZOhQ4iltIoGCSE0OblWvCIgiqxmveEibU7c2Db3vWlm6kgICQXmJRh+VqLLzs1E5AtQzWqRdQn0849N0Blfb6rrCliFdenjc8igf4udvB6xNqlaIywxJnbUbKqaVnb+S/Bz8eioovuV7R2ekT6UAYb2PsoZsDGgiw43mpQFtnRjSXkD3lMGL5eAiGDPpwslR/rK7njJqQ6I=
 cache:
   yarn: true
   directories:
     - node_modules
 script:
   - yarn build
-after_success:
-  - test $TRAVIS_BRANCH = "master" && yarn run deploy:travis -- --branch=build
+deploy:
+- provider: script
+  repo: konnectors/cozy-konnector-payfit
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build && yarn deploy && yarn cozyPublish
+  on:
+    branch: master
+- provider: script
+  repo: konnectors/cozy-konnector-payfit
+  skip-cleanup: true
+  script: DEPLOY_BRANCH=build && yarn deploy && yarn cozyPublish
+  on:
+    tags: true

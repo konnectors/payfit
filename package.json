@@ -40,18 +40,17 @@
     "build": "webpack",
     "format": "prettier --write '**/*.{js,json}'",
     "precommit": "eslint . && pretty-quick --staged",
-    "deploy:travis":
-      "git-directory-deploy --username Cozy --email contact@cozycloud.cc --directory build/ --repo=https://$GITHUB_TOKEN@github.com/konnectors/cozy-konnector-payfit.git",
     "deploy":
-      "git-directory-deploy --directory build/ --branch build --repo=https://github.com/konnectors/cozy-konnector-payfit.git",
-    "deploy:prod":
-      "git-directory-deploy --directory build/ --branch latest --repo=https://github.com/konnectors/cozy-konnector-payfit.git"
+      "git-directory-deploy --directory build/ --branch ${DEPLOY_BRANCH:-build} --repo=${DEPLOY_REPOSITORY:-https://$GITHUB_TOKEN@github.com/konnectors/cozy-konnector-payfit.git}",
+    "cozyPublish":
+      "cozy-app-publish --token $REGISTRY_TOKEN --build-commit $(git rev-parse ${DEPLOY_BRANCH:-build})"
   },
   "dependencies": {
     "cozy-konnector-libs": "3.5.3"
   },
   "devDependencies": {
     "copy-webpack-plugin": "4.5.1",
+    "cozy-app-publish": "0.3.5",
     "eslint": "4.18.1",
     "eslint-config-prettier": "2.9.0",
     "git-directory-deploy": "1.5.1",
