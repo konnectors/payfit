@@ -111,7 +111,7 @@ This command will commit and push your build in the branch `build` fo your proje
 
 And your konnector can now be installed using the following url :
 
-git://github.com/cozy/cozy-konnector-<yourkonnector>.git#build
+git://github.com/konnectors/cozy-konnector-payfit.git#build
 
 ### Build using Travis CI
 
@@ -164,7 +164,7 @@ You can reach the Cozy Community by:
 
 ## License
 
-<YOUR KONNECTOR NAME> is developed by <your name> and distributed under the [AGPL v3 license][agpl-3.0].
+Payfit konnector is developed by Gara64 and distributed under the [AGPL v3 license][agpl-3.0].
 
 [cozy]: https://cozy.io "Cozy Cloud"
 [agpl-3.0]: https://www.gnu.org/licenses/agpl-3.0.html

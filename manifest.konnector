@@ -1,35 +1,69 @@
 {
   "version": "1.0.0",
   "name": "Payfit",
-  "type": "node",
+  "type": "konnector",
+  "language": "node",
+  "icon": "payfit.svg",
   "slug": "payfit",
-  "description": "Fetches payfit you salary statements",
   "source": "git://github.com/konnectors/cozy-konnector-payfit.git",
-  "locales": {
-    "fr": {
-      "permissions": {
-        "files": {
-          "description": "Utilisé pour sauvegarder fiches de paye"
-        },
-        "accounts": {
-          "description": "Utilisé pour récupérer les informations de votre compte"
-        }
+  "editor": "Cozy",
+  "vendor_link": "https://app.payfit.com/",
+  "categories": ["other"],
+  "fields": {
+    "login": {
+      "type": "text"
+    },
+    "password": {
+      "type": "password"
+    },
+    "advancedFields": {
+      "folderPath": {
+        "advanced": true,
+        "isRequired": false
       }
     }
   },
+  "data_types": [
+    "document"
+  ],
   "permissions": {
     "files": {
-      "description": "Required to save the salary statements",
       "type": "io.cozy.files"
     },
     "accounts": {
-      "description": "Required to get the account's data",
       "type": "io.cozy.accounts",
       "verbs": ["GET"]
     }
   },
   "developer": {
-    "name": "cozy",
-    "url": "cozy.io"
+    "name": "Gara64",
+    "url": "https://github.com/Gara64"
+  },
+  "langs": ["fr"],
+  "locales": {
+    "fr": {
+      "short_description": "Récupérer vos données Payfit dans votre Cozy",
+      "long_description": "Ce fournisseur vous permettra de récupérer l'ensemble de vos documents Payfit dans votre Cozy.",
+      "permissions": {
+        "files": {
+          "description": "Utilisé pour sauvegarder les fiches de paye"
+        },
+        "accounts": {
+          "description": "Utilisé pour obtenir les données du compte"
+        }
+      }
+    },
+    "en": {
+      "short_description": "Fetch your Payfit data in your Cozy",
+      "long_description": "This provider will allow you to fetch all your Payfit documents in your Cozy.",
+      "permissions": {
+        "files": {
+          "description": "Required to save the salary statements"
+        },
+        "accounts": {
+          "description": "Required to get the account's data"
+        }
+      }
+    }
   }
 }
