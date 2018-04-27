@@ -28,7 +28,7 @@ function start(fields) {
 function logIn(fields) {
   log("info", "Login...");
   return request({
-    uri: "https://auth.payfit.com/signin",
+    uri: "https://api.payfit.com/auth/signin",
     method: "POST",
     body: {
       email: fields.login,
@@ -46,7 +46,7 @@ function logIn(fields) {
       idToken = body.idToken;
 
       const uri =
-        "https://auth.payfit.com/updateCurrentCompany?application=hr-apps/user&companyId=";
+        "https://api.payfit.com/auth/updateCurrentCompany?application=hr-apps/user&companyId=";
 
       return request({
         uri: `${uri}${companyId}&customApp=false&employeeId=${employeeId}&holdingId&idToken=${idToken}&origin=https://app.payfit.com`
@@ -67,7 +67,7 @@ function fetchPayrolls() {
   log("info", "Fetching payrolls...");
   return request({
     method: "POST",
-    uri: "https://api.payfit.com/api/employees/payrolls",
+    uri: "https://api.payfit.com/hr/employees/payrolls",
     headers: {
       Authorization: idToken
     }
@@ -76,10 +76,10 @@ function fetchPayrolls() {
 
 function convertPayrollsToCozy(payrolls) {
   log("info", "Converting payrolls to cozy...");
-  const baseUrl = "https://api.payfit.com/api";
+  const baseUrl = "https://api.payfit.com/hr";
 
   return payrolls.map(function(payroll) {
-    const url = baseUrl + payroll.url + "?" + idToken;
+    const url = baseUrl + payroll.url;
     const date = getDateFromAbsoluteMonth(payroll.absoluteMonth);
     const filename = `${formatDate(date, "YYYY_MM")}.pdf`;
     return {
