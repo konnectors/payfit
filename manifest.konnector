@@ -5,11 +5,10 @@
   "language": "node",
   "icon": "payfit.svg",
   "slug": "payfit",
-  "source": "git://github.com/konnectors/cozy-konnector-payfit.git#build",
+  "source": "git://github.com/konnectors/cozy-konnector-payfit.git",
   "editor": "Cozy",
-  "vendorLink": "https://app.payfit.com/",
+  "vendor_link": "https://app.payfit.com/",
   "categories": ["other"],
-  "screenshots": [],
   "fields": {
     "login": {
       "type": "text"
@@ -29,11 +28,9 @@
   ],
   "permissions": {
     "files": {
-      "description": "Required to save the salary statements",
       "type": "io.cozy.files"
     },
     "accounts": {
-      "description": "Required to get the account's data",
       "type": "io.cozy.accounts",
       "verbs": ["GET"]
     }
@@ -46,11 +43,27 @@
   "locales": {
     "fr": {
       "short_description": "Récupérer vos données Payfit dans votre Cozy",
-      "long_description": "Ce fournisseur vous permettra de récupérer l'ensemble de vos documents Payfit dans votre Cozy."
+      "long_description": "Ce fournisseur vous permettra de récupérer l'ensemble de vos documents Payfit dans votre Cozy.",
+      "permissions": {
+        "files": {
+          "description": "Utilisé pour sauvegarder les fiches de paye"
+        },
+        "accounts": {
+          "description": "Utilisé pour obtenir les données du compte"
+        }
+      }
     },
     "en": {
       "short_description": "Fetch your Payfit data in your Cozy",
-      "long_description": "This provider will allow you to fetch all your Payfit documents in your Cozy."
+      "long_description": "This provider will allow you to fetch all your Payfit documents in your Cozy.",
+      "permissions": {
+        "files": {
+          "description": "Required to save the salary statements"
+        },
+        "accounts": {
+          "description": "Required to get the account's data"
+        }
+      }
     }
   }
 }
