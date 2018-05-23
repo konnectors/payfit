@@ -45,11 +45,15 @@ function logIn(fields) {
       let employeeId = tokens[1]
       idToken = body.idToken
 
-      const uri =
-        'https://api.payfit.com/auth/updateCurrentCompany?application=hr-apps/user&companyId='
-
-      return request({
-        uri: `${uri}${companyId}&customApp=false&employeeId=${employeeId}&holdingId&idToken=${idToken}&origin=https://app.payfit.com`
+      return request.post('https://api.payfit.com/auth/updateCurrentCompany', {
+        body: {
+          application: 'hr-apps/user',
+          companyId,
+          customApp: false,
+          employeeId,
+          holdingId: null,
+          idToken
+        }
       })
     })
     .catch(err => {
