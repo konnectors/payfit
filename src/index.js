@@ -80,11 +80,8 @@ function fetchPayrolls() {
 
 function convertPayrollsToCozy(payrolls) {
   log('info', 'Converting payrolls to cozy...')
-  const baseUrl = 'https://api.payfit.com/hr'
-
-  return payrolls.map(function(payroll) {
-    const url = baseUrl + payroll.url
-    const date = getDateFromAbsoluteMonth(payroll.absoluteMonth)
+  return payrolls.map(({ url, absoluteMonth }) => {
+    const date = getDateFromAbsoluteMonth(absoluteMonth)
     const filename = `${formatDate(date, 'YYYY_MM')}.pdf`
     return {
       fileurl: url,
