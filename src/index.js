@@ -16,45 +16,45 @@ const formatDate = require('date-fns/format')
 
 module.exports = new BaseKonnector(start)
 
-let idToken = ''
-
-function start(fields) {
-  return logIn(fields)
-    .then(fetchPayrolls)
-    .then(convertPayrollsToCozy)
-    .then(documents => saveFiles(documents, fields))
+async function start(fields) {
+  const token = await getToken(fields)
+  const payrolls = await fetchPayrolls(token)
+  const documents = convertPayrollsToCozy(token, payrolls)
+  return saveFiles(documents, fields)
 }
 
-function logIn(fields) {
+function getToken({ login, password }) {
   log('info', 'Login...')
   return request({
     uri: 'https://api.payfit.com/auth/signin',
     method: 'POST',
     body: {
-      email: fields.login,
-      password: fields.password,
-      username: fields.login,
+      email: login,
+      password: password,
+      username: login,
       language: 'fr'
     }
   })
-    .then(body => {
+    .then(async body => {
       const employee = body.accounts.find(doc => doc.type === 'e')
       let id = employee.id
       let tokens = id.split('/')
       let companyId = tokens[0]
       let employeeId = tokens[1]
-      idToken = body.idToken
 
-      return request.post('https://api.payfit.com/auth/updateCurrentCompany', {
+      // this is a server side-effect needed for the token to be valid
+      await request.post('https://api.payfit.com/auth/updateCurrentCompany', {
         body: {
           application: 'hr-apps/user',
           companyId,
           customApp: false,
           employeeId,
           holdingId: null,
-          idToken
+          idToken: body.idToken
         }
       })
+
+      return body.idToken
     })
     .catch(err => {
       if (
@@ -67,7 +67,7 @@ function logIn(fields) {
     })
 }
 
-function fetchPayrolls() {
+function fetchPayrolls(idToken) {
   log('info', 'Fetching payrolls...')
   return request({
     method: 'POST',
@@ -78,7 +78,7 @@ function fetchPayrolls() {
   })
 }
 
-function convertPayrollsToCozy(payrolls) {
+function convertPayrollsToCozy(idToken, payrolls) {
   log('info', 'Converting payrolls to cozy...')
   return payrolls.map(({ url, absoluteMonth }) => {
     const date = getDateFromAbsoluteMonth(absoluteMonth)
