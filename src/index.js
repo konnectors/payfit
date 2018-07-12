@@ -23,13 +23,13 @@ const formatDate = require('date-fns/format')
 module.exports = new BaseKonnector(start)
 
 async function start(fields) {
-  const token = await getToken(fields)
-  const payrolls = await fetchPayrolls(token)
-  const documents = convertPayrollsToCozy(token, payrolls)
+  const tokens = await getTokens(fields)
+  const payrolls = await fetchPayrolls(tokens)
+  const documents = convertPayrollsToCozy(tokens, payrolls)
   return saveFiles(documents, fields)
 }
 
-function getToken({ login, password }) {
+function getTokens({ login, password }) {
   log('info', 'Login...')
   return request({
     uri: 'https://api.payfit.com/auth/signin',
@@ -49,18 +49,11 @@ function getToken({ login, password }) {
       let employeeId = tokens[1]
 
       // this is a server side-effect needed for the token to be valid
-      await request.post('https://api.payfit.com/auth/updateCurrentCompany', {
-        body: {
-          application: 'hr-apps/user',
-          companyId,
-          customApp: false,
-          employeeId,
-          holdingId: null,
-          idToken: body.idToken
-        }
+      await request('https://api.payfit.com/auth/updateCurrentAccount', {
+        qs: { companyId, employeeId }
       })
 
-      return body.idToken
+      return { idToken: body.idToken, employeeId }
     })
     .catch(err => {
       if (
@@ -73,13 +66,15 @@ function getToken({ login, password }) {
     })
 }
 
-function fetchPayrolls(idToken) {
+function fetchPayrolls(tokens) {
+  const { idToken, employeeId } = tokens
   log('info', 'Fetching payrolls...')
   return request({
     method: 'POST',
     uri: 'https://api.payfit.com/hr/employees/payrolls',
     headers: {
-      Authorization: idToken
+      Authorization: idToken,
+      'x-payfit-id': employeeId
     }
   })
 }
