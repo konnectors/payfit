@@ -59,9 +59,11 @@ function getTokens({ login, password }) {
       if (
         err.statusCode === 401 &&
         err.error &&
-        err.error.error === 'Wrong email or password'
+        err.error.error === 'invalid_password'
       ) {
         throw new Error(errors.LOGIN_FAILED)
+      } else {
+        throw err
       }
     })
 }
