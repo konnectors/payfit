@@ -42,6 +42,9 @@ function getTokens({ login, password }) {
     }
   })
     .then(async body => {
+      if (body.isMultiFactorRequired) {
+        throw new Error(errors.CHALLENGE_ASKED)
+      }
       const employee = body.accounts.find(doc => doc.type === 'e')
       let id = employee.id
       let tokens = id.split('/')
