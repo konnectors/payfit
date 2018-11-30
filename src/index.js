@@ -7,7 +7,7 @@ process.env.SENTRY_DSN =
 const {
   BaseKonnector,
   log,
-  saveFiles,
+  saveBills,
   requestFactory,
   errors
 } = require('cozy-konnector-libs')
@@ -19,14 +19,53 @@ const request = requestFactory({
 })
 
 const formatDate = require('date-fns/format')
+const moment = require('moment')
 
 module.exports = new BaseKonnector(start)
 
 async function start(fields) {
   const tokens = await getTokens(fields)
   const payrolls = await fetchPayrolls(tokens)
+  const { companyName } = await fetchProfileInfo()
   const documents = convertPayrollsToCozy(tokens, payrolls)
-  return saveFiles(documents, fields)
+
+  moment.locale('fr')
+
+  return saveBills(documents, fields, {
+    identifiers: ['payfit'],
+    processPdf: (entry, text) => {
+      const values = text
+        .split('\n')
+        .join(' ')
+        .match(
+          /NET +À +PAYER.*VIREMEN *T(.*)DATE +DE +P *AIEMEN *T(.*)([0-9]{4}).*SOLDE CP/
+        )
+        .slice(1)
+        .map(data => data.trim().replace(/\s\s+/g, ' '))
+
+      const amount = parseFloat(
+        values
+          .shift()
+          .replace(/\s/g, '')
+          .replace(',', '.')
+      )
+      const date = moment(values.join(' '), 'DD MMMM YYYY').toDate()
+      Object.assign(entry, {
+        periodStart: moment(entry.date)
+          .startOf('month')
+          .toDate(),
+        periodEnd: moment(entry.date)
+          .endOf('month')
+          .toDate(),
+        date,
+        amount,
+        vendor: 'Payfit',
+        type: 'pay',
+        employer: companyName,
+        isRefund: true
+      })
+    }
+  })
 }
 
 function getTokens({ login, password }) {
@@ -56,7 +95,7 @@ function getTokens({ login, password }) {
         qs: { companyId, employeeId }
       })
 
-      return { idToken: body.idToken, employeeId }
+      return { idToken: body.id, employeeId }
     })
     .catch(err => {
       if (
@@ -69,6 +108,10 @@ function getTokens({ login, password }) {
         throw err
       }
     })
+}
+
+async function fetchProfileInfo() {
+  return request.post('https://api.payfit.com/hr/user/info')
 }
 
 function fetchPayrolls(tokens) {
@@ -90,6 +133,7 @@ function convertPayrollsToCozy(idToken, payrolls) {
     const date = getDateFromAbsoluteMonth(absoluteMonth)
     const filename = `${formatDate(date, 'YYYY_MM')}.pdf`
     return {
+      date,
       fileurl: url,
       filename,
       requestOptions: {
