@@ -5,7 +5,7 @@
   "language": "node",
   "icon": "payfit.svg",
   "slug": "payfit",
-  "source": "git://github.com/konnectors/cozy-konnector-payfit.git",
+  "source": "git@github.com:konnectors/cozy-konnector-payfit.git",
   "editor": "Cozy",
   "vendor_link": "https://app.payfit.com/",
   "categories": [
