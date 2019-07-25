@@ -3,7 +3,7 @@
   "name": "Payfit",
   "type": "konnector",
   "language": "node",
-  "icon": "payfit.svg",
+  "icon": "icon.svg",
   "slug": "payfit",
   "source": "git@github.com:konnectors/cozy-konnector-payfit.git",
   "editor": "Cozy",
