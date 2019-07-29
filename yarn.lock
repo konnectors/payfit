@@ -1245,7 +1245,7 @@ cozy-client-js@0.16.4:
     pouchdb-browser "7.0.0"
     pouchdb-find "7.0.0"
 
-cozy-client@^6.55.0:
+cozy-client@6.55.0:
   version "6.55.0"
   resolved "https://registry.yarnpkg.com/cozy-client/-/cozy-client-6.55.0.tgz#ffc4277103e0a0a304cc68d0bed7347c00dabb64"
   integrity sha512-N/loJqXGw0V0YvV++tPrJCw2Q4u+2Zga1dMp25+g/Oh85gOWa6v2WFo1izPH3FGf2rfetoWziv8gWz/jzjeUeA==
