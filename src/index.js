@@ -62,6 +62,9 @@ async function start(fields) {
         vendor: 'Payfit',
         type: 'pay',
         employer: companyName,
+        matchingCriterias: {
+          labelRegex: `\\b${companyName}\\b`
+        },
         isRefund: true
       })
     }
