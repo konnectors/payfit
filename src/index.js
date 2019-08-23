@@ -35,6 +35,7 @@ async function start(fields) {
     identifiers: ['payfit'],
     sourceAccount: this._account._id,
     sourceAccountIdentifier: fields.login,
+    linkBankOperations: false,
     processPdf: (entry, text) => {
       const values = text
         .split('\n')
