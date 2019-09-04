@@ -33,6 +33,9 @@ async function start(fields) {
 
   return saveBills(documents, fields, {
     identifiers: ['payfit'],
+    sourceAccount: this._account._id,
+    sourceAccountIdentifier: fields.login,
+    linkBankOperations: false,
     processPdf: (entry, text) => {
       const values = text
         .split('\n')
@@ -53,10 +56,10 @@ async function start(fields) {
       Object.assign(entry, {
         periodStart: moment(entry.date)
           .startOf('month')
-          .toDate(),
+          .format('YYYY-MM-DD'),
         periodEnd: moment(entry.date)
           .endOf('month')
-          .toDate(),
+          .format('YYYY-MM-DD'),
         date,
         amount,
         vendor: 'Payfit',
@@ -136,7 +139,7 @@ function convertPayrollsToCozy(idToken, payrolls) {
     const date = getDateFromAbsoluteMonth(absoluteMonth)
     const filename = `${formatDate(date, 'YYYY_MM')}.pdf`
     return {
-      date,
+      date: moment(date).format('YYYY-MM-DD'),
       fileurl: url,
       filename,
       requestOptions: {
