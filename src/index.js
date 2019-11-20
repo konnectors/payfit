@@ -33,16 +33,20 @@ async function start(fields) {
 
   return saveBills(documents, fields, {
     identifiers: ['payfit'],
-    sourceAccount: this._account._id,
+    sourceAccount: this.accountId,
     sourceAccountIdentifier: fields.login,
     linkBankOperations: false,
     processPdf: (entry, text) => {
-      const values = text
+      const matchedStrings = text
         .split('\n')
         .join(' ')
         .match(
           /NET +À +PAYER.*VIREMEN *T(.*)DATE +DE +P *AIEMEN *T(.*)([0-9]{4}).*SOLDE CP/
         )
+      if (!matchedStrings) {
+        throw new Error('no matched string in pdf')
+      }
+      const values = matchedStrings
         .slice(1)
         .map(data => data.trim().replace(/\s\s+/g, ' '))
 
