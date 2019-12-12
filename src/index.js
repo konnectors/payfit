@@ -24,7 +24,9 @@ const moment = require('moment')
 module.exports = new BaseKonnector(start)
 
 async function start(fields) {
-  const tokens = await getTokens(fields)
+  await this.deactivateAutoSuccessfulLogin()
+  const tokens = await getTokens.bind(this)(fields)
+  await this.notifySuccessfulLogin()
   const payrolls = await fetchPayrolls(tokens)
   const { companyName } = await fetchProfileInfo()
   const documents = convertPayrollsToCozy(tokens, payrolls)
@@ -91,7 +93,19 @@ async function getTokens({ login, password }) {
       }
     })
     if (body.isMultiFactorRequired) {
-      throw new Error(errors.CHALLENGE_ASKED)
+      log('info', '2FA detected')
+      const code = await this.waitForTwoFaCode({ type: 'sms' })
+      body = await request.post({
+        uri: 'https://api.payfit.com/auth/signin',
+        body: {
+          s: '',
+          email: login,
+          password: password,
+          username: login,
+          multiFactorCode: code,
+          language: 'fr'
+        }
+      })
     }
     const employee = body.accounts.find(doc => doc.type === 'e')
     let id = employee.id
