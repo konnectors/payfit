@@ -78,46 +78,44 @@ async function start(fields) {
   })
 }
 
-function getTokens({ login, password }) {
+async function getTokens({ login, password }) {
   log('info', 'Login...')
-  return request({
-    uri: 'https://api.payfit.com/auth/signin',
-    method: 'POST',
-    body: {
-      email: login,
-      password: password,
-      username: login,
-      language: 'fr'
+  try {
+    let body = await request.post({
+      uri: 'https://api.payfit.com/auth/signin',
+      body: {
+        email: login,
+        password: password,
+        username: login,
+        language: 'fr'
+      }
+    })
+    if (body.isMultiFactorRequired) {
+      throw new Error(errors.CHALLENGE_ASKED)
     }
-  })
-    .then(async body => {
-      if (body.isMultiFactorRequired) {
-        throw new Error(errors.CHALLENGE_ASKED)
-      }
-      const employee = body.accounts.find(doc => doc.type === 'e')
-      let id = employee.id
-      let tokens = id.split('/')
-      let companyId = tokens[0]
-      let employeeId = tokens[1]
+    const employee = body.accounts.find(doc => doc.type === 'e')
+    let id = employee.id
+    let tokens = id.split('/')
+    let companyId = tokens[0]
+    let employeeId = tokens[1]
 
-      // this is a server side-effect needed for the token to be valid
-      await request('https://api.payfit.com/auth/updateCurrentAccount', {
-        qs: { companyId, employeeId }
-      })
+    // this is a server side-effect needed for the token to be valid
+    await request('https://api.payfit.com/auth/updateCurrentAccount', {
+      qs: { companyId, employeeId }
+    })
 
-      return { idToken: body.id, employeeId, companyId }
-    })
-    .catch(err => {
-      if (
-        err.statusCode === 401 &&
-        err.error &&
-        err.error.error === 'invalid_password'
-      ) {
-        throw new Error(errors.LOGIN_FAILED)
-      } else {
-        throw err
-      }
-    })
+    return { idToken: body.id, employeeId, companyId }
+  } catch (err) {
+    if (
+      err.statusCode === 401 &&
+      err.error &&
+      err.error.error === 'invalid_password'
+    ) {
+      throw new Error(errors.LOGIN_FAILED)
+    } else {
+      throw err
+    }
+  }
 }
 
 async function fetchProfileInfo() {
