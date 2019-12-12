@@ -32,10 +32,10 @@ async function start(fields) {
   moment.locale('fr')
 
   return saveBills(documents, fields, {
-    identifiers: ['payfit'],
     sourceAccount: this.accountId,
     sourceAccountIdentifier: fields.login,
     linkBankOperations: false,
+    fileIdAttributes: ['vendorId'],
     processPdf: (entry, text) => {
       const matchedStrings = text
         .split('\n')
@@ -105,7 +105,7 @@ function getTokens({ login, password }) {
         qs: { companyId, employeeId }
       })
 
-      return { idToken: body.id, employeeId }
+      return { idToken: body.id, employeeId, companyId }
     })
     .catch(err => {
       if (
@@ -124,33 +124,33 @@ async function fetchProfileInfo() {
   return request.post('https://api.payfit.com/hr/user/info')
 }
 
-function fetchPayrolls(tokens) {
-  const { idToken, employeeId } = tokens
+async function fetchPayrolls(tokens) {
+  const { employeeId, companyId } = tokens
   log('info', 'Fetching payrolls...')
-  return request({
-    method: 'POST',
-    uri: 'https://api.payfit.com/hr/employees/payrolls',
-    headers: {
-      Authorization: idToken,
-      'x-payfit-id': employeeId
+
+  const { id } = await request.get(
+    'https://api.payfit.com/files/category?name=payslip&country=FR'
+  )
+
+  return request.post('https://api.payfit.com/files/files', {
+    body: {
+      employeeIds: [employeeId],
+      categoryIds: [id],
+      companyIds: [companyId]
     }
   })
 }
 
 function convertPayrollsToCozy(idToken, payrolls) {
   log('info', 'Converting payrolls to cozy...')
-  return payrolls.map(({ url, absoluteMonth }) => {
+  return payrolls.map(({ id, absoluteMonth }) => {
     const date = getDateFromAbsoluteMonth(absoluteMonth)
     const filename = `${formatDate(date, 'YYYY_MM')}.pdf`
     return {
       date: moment(date).format('YYYY-MM-DD'),
-      fileurl: url,
+      fileurl: `https://api.payfit.com/files/file/${id}?attachment=1`,
       filename,
-      requestOptions: {
-        headers: {
-          Authorization: idToken
-        }
-      }
+      vendorId: id
     }
   })
 }
