@@ -157,7 +157,8 @@ function convertPayrollsToCozy(idToken, payrolls) {
       date: moment(date).format('YYYY-MM-DD'),
       fileurl: `https://api.payfit.com/files/file/${id}?attachment=1`,
       filename,
-      vendorId: id
+      vendorId: id,
+      recurrence: 'monthly'
     }
   })
 }
