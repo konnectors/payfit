@@ -17,6 +17,7 @@ const request = requestFactory({
 
 const formatDate = require('date-fns/format')
 const moment = require('moment')
+const crypto = require('crypto')
 
 module.exports = new BaseKonnector(start)
 
@@ -81,9 +82,13 @@ async function getTokens({ login, password }) {
     let body = await request.post({
       uri: 'https://api.payfit.com/auth/signin',
       body: {
+        s: '',
         email: login,
-        password: password,
-        username: login,
+        password: crypto
+          .createHmac('sha256', password)
+          .update('')
+          .digest('hex'),
+        isHashed: true,
         language: 'fr'
       }
     })
