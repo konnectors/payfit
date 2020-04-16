@@ -1,5 +1,3 @@
-// Force sentry DSN into environment variables
-// In the future, will be set by the stack
 process.env.SENTRY_DSN =
   process.env.SENTRY_DSN ||
   'https://bb9b62dfb62d4492959a88240d402b21:cac5cbbc6b474095a4754ad2a5f1bf72@sentry.cozycloud.cc/80'
@@ -7,7 +5,6 @@ process.env.SENTRY_DSN =
 const {
   BaseKonnector,
   log,
-  saveBills,
   requestFactory,
   errors
 } = require('cozy-konnector-libs')
@@ -33,9 +30,7 @@ async function start(fields) {
 
   moment.locale('fr')
 
-  return saveBills(documents, fields, {
-    sourceAccount: this.accountId,
-    sourceAccountIdentifier: fields.login,
+  return this.saveBills(documents, fields, {
     linkBankOperations: false,
     fileIdAttributes: ['vendorId'],
     processPdf: (entry, text) => {

@@ -75,5 +75,6 @@
       }
     }
   },
+  "features": ["LOGIN_OK", "METADATA_DEDUP"],
   "manifest_version": "2"
 }
