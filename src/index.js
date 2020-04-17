@@ -23,15 +23,29 @@ module.exports = new BaseKonnector(start)
 
 async function start(fields) {
   await this.deactivateAutoSuccessfulLogin()
-  const tokens = await getTokens.bind(this)(fields)
+  const { accounts } = await getTokens.bind(this)(fields)
   await this.notifySuccessfulLogin()
-  const payrolls = await fetchPayrolls(tokens)
+
+  for (const account of accounts) {
+    // only handle employee accounts
+    if (account.type !== 'e') continue
+
+    await fetchAccount.bind(this)(fields, account)
+  }
+}
+
+async function fetchAccount(fields, account) {
+  const tokens = account.id.split('/')
+  const companyId = tokens[0]
+  const employeeId = tokens[1]
+  await request('https://api.payfit.com/auth/updateCurrentAccount', {
+    qs: { companyId, employeeId }
+  })
+  const payrolls = await fetchPayrolls({ companyId, employeeId })
   const { companyName } = await fetchProfileInfo()
-  const documents = convertPayrollsToCozy(tokens, payrolls)
-
+  const documents = convertPayrollsToCozy(payrolls, companyName)
   moment.locale('fr')
-
-  return this.saveBills(documents, fields, {
+  await this.saveBills(documents, fields, {
     linkBankOperations: false,
     fileIdAttributes: ['vendorId'],
     processPdf: (entry, text) => {
@@ -100,25 +114,17 @@ async function getTokens({ login, password }) {
         body: {
           s: '',
           email: login,
-          password: password,
-          username: login,
+          password: crypto
+            .createHmac('sha256', password)
+            .update('')
+            .digest('hex'),
+          isHashed: true,
           multiFactorCode: code,
           language: 'fr'
         }
       })
     }
-    const employee = body.accounts.find(doc => doc.type === 'e')
-    let id = employee.id
-    let tokens = id.split('/')
-    let companyId = tokens[0]
-    let employeeId = tokens[1]
-
-    // this is a server side-effect needed for the token to be valid
-    await request('https://api.payfit.com/auth/updateCurrentAccount', {
-      qs: { companyId, employeeId }
-    })
-
-    return { idToken: body.id, employeeId, companyId }
+    return body
   } catch (err) {
     if (
       err.statusCode === 401 &&
@@ -136,8 +142,7 @@ async function fetchProfileInfo() {
   return request.post('https://api.payfit.com/hr/user/info')
 }
 
-async function fetchPayrolls(tokens) {
-  const { employeeId, companyId } = tokens
+async function fetchPayrolls({ employeeId, companyId }) {
   log('info', 'Fetching payrolls...')
 
   const { id } = await request.get(
@@ -153,11 +158,11 @@ async function fetchPayrolls(tokens) {
   })
 }
 
-function convertPayrollsToCozy(idToken, payrolls) {
+function convertPayrollsToCozy(payrolls, companyName) {
   log('info', 'Converting payrolls to cozy...')
   return payrolls.map(({ id, absoluteMonth }) => {
     const date = getDateFromAbsoluteMonth(absoluteMonth)
-    const filename = `${formatDate(date, 'YYYY_MM')}.pdf`
+    const filename = `${companyName}_${formatDate(date, 'YYYY_MM')}.pdf`
     return {
       date: moment(date).format('YYYY-MM-DD'),
       fileurl: `https://api.payfit.com/files/file/${id}?attachment=1`,
