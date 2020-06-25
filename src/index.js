@@ -15,7 +15,7 @@ const request = requestFactory({
   jar: true
 })
 
-const formatDate = require('date-fns/format')
+const { format } = require('date-fns')
 const moment = require('moment')
 const crypto = require('crypto')
 
@@ -23,21 +23,21 @@ module.exports = new BaseKonnector(start)
 
 async function start(fields) {
   await this.deactivateAutoSuccessfulLogin()
-  const { accounts } = await getTokens.bind(this)(fields)
+  await authenticate.bind(this)(fields)
   await this.notifySuccessfulLogin()
+  const accounts = await request(
+    'https://api.payfit.com/hr/individuals/accounts/list'
+  )
 
   for (const account of accounts) {
     // only handle employee accounts
-    if (account.type !== 'e') continue
-
+    if (account.account.userRole !== 'employee') continue
     await fetchAccount.bind(this)(fields, account)
   }
 }
 
 async function fetchAccount(fields, account) {
-  const tokens = account.id.split('/')
-  const companyId = tokens[0]
-  const employeeId = tokens[1]
+  const { companyId, employeeId } = account.account
   await request('https://api.payfit.com/auth/updateCurrentAccount', {
     qs: { companyId, employeeId }
   })
@@ -90,7 +90,7 @@ async function fetchAccount(fields, account) {
   })
 }
 
-async function getTokens({ login, password }) {
+async function authenticate({ login, password }) {
   log('info', 'Login...')
   try {
     let body = await request.post({
@@ -162,7 +162,7 @@ function convertPayrollsToCozy(payrolls, companyName) {
   log('info', 'Converting payrolls to cozy...')
   return payrolls.map(({ id, absoluteMonth }) => {
     const date = getDateFromAbsoluteMonth(absoluteMonth)
-    const filename = `${companyName}_${formatDate(date, 'YYYY_MM')}.pdf`
+    const filename = `${companyName}_${format(date, 'yyyy_MM')}.pdf`
     return {
       date: moment(date).format('YYYY-MM-DD'),
       fileurl: `https://api.payfit.com/files/file/${id}?attachment=1`,
